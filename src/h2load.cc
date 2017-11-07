@@ -45,6 +45,7 @@
 #include <thread>
 #include <future>
 #include <random>
+#include <algorithm>
 
 #ifdef HAVE_SPDYLAY
 #include <spdylay/spdylay.h>
@@ -1528,6 +1529,12 @@ process_time_stats(const std::vector<std::unique_ptr<Worker>> &workers) {
               cstat.ttfb - cstat.connect_start_time)
               .count());
     }
+  }
+
+  std::sort(request_times.begin(), request_times.end());
+  std::vector<double>::iterator it;
+  for (it = request_times.begin(); it != request_times.end(); it++) {
+    std::cout << *it << "\n";
   }
 
   return {compute_time_stat(request_times, request_times_sampling),

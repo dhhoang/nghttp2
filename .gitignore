@@ -55,3 +55,7 @@ _VC_ROOT/
 *.pyd
 *.egg-info/
 python/nghttp2.c
+doc/bash_completion/h2load
+.vscode/
+python/build/
+third-party/neverbleed/**/*
