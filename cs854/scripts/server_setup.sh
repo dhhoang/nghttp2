@@ -35,4 +35,3 @@ fi
 cd "/www"
 gen_files
 cd $cwd
-
