@@ -4,12 +4,14 @@ echo "entering dir nghttp2/";
 cd ../../;
 
 function build_nghttp2(){
+    git submodule update --init;
     autoreconf -i;
     automake;
     autoconf;
     ./configure --enable-apps;
     make;
     sudo make install;
+    sudo ldconfig;
 }
 
 build_nghttp2;
