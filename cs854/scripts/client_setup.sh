@@ -9,6 +9,7 @@ function build_nghttp2(){
     autoconf;
     ./configure --enable-apps;
     make;
+    sudo make install;
 }
 
 build_nghttp2;
