@@ -1999,7 +1999,7 @@ Options:
 } // namespace
 
 void print_percentile(std::vector<double> request_times, int percentile) {
-  int idx = (request_times.size() * percentile) / 100;
+  int idx = ((request_times.size() * percentile) / 100) - 1;
   std::cout << percentile << "percentile=" << request_times[idx] * 1000
             << std::endl;
 }
@@ -2808,6 +2808,11 @@ time for request: )" << std::setw(10)
 
   auto request_times = ts.request_times;
   std::sort(request_times.begin(), request_times.end());
+  std::vector<double>::iterator it;
+  for (it = request_times.begin(); it != request_times.end(); it++) {
+    std::cout << *it << std::endl;
+  }
+
   // write these to stdout
   std::cout << "rps=" << rps << std::endl;
   print_percentile(request_times, 95);
