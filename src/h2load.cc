@@ -2807,9 +2807,11 @@ time for request: )" << std::setw(10)
             << util::dtos(ts.rps.within_sd) << "%" << std::endl;
 
   auto request_times = ts.request_times;
-
-  print_percentile(request_times, 90);
+  std::sort(request_times.begin(), request_times.end());
+  // write these to stdout
+  std::cout << "rps=" << util::format_duration(duration) << std::endl;
   print_percentile(request_times, 95);
+  print_percentile(request_times, 98);
   print_percentile(request_times, 99);
 
   SSL_CTX_free(ssl_ctx);
