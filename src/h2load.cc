@@ -2808,10 +2808,6 @@ time for request: )" << std::setw(10)
 
   auto request_times = ts.request_times;
   std::sort(request_times.begin(), request_times.end());
-  std::vector<double>::iterator it;
-  for (it = request_times.begin(); it != request_times.end(); it++) {
-    std::cerr << *it << std::endl;
-  }
 
   // write these to stdout
   std::cout << "rps=" << rps << std::endl;
