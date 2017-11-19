@@ -175,6 +175,8 @@ struct SDStats {
   SDStat ttfb;
   // request per second for each client
   SDStat rps;
+  // request times
+  std::vector<double> request_times;
 };
 
 struct Stats {

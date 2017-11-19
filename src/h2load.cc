@@ -253,10 +253,10 @@ void duration_timeout_cb(struct ev_loop *loop, ev_timer *w, int revents) {
 
   worker->current_phase = Phase::DURATION_OVER;
 
-  std::cout << "Main benchmark duration is over for thread #" << worker->id
+  std::cerr << "Main benchmark duration is over for thread #" << worker->id
             << ". Stopping all clients." << std::endl;
   worker->stop_all_clients();
-  std::cout << "Stopped all clients for thread #" << worker->id << std::endl;
+  std::cerr << "Stopped all clients for thread #" << worker->id << std::endl;
 }
 } // namespace
 
@@ -265,9 +265,9 @@ namespace {
 void warmup_timeout_cb(struct ev_loop *loop, ev_timer *w, int revents) {
   auto worker = static_cast<Worker *>(w->data);
 
-  std::cout << "Warm-up phase is over for thread #" << worker->id << "."
+  std::cerr << "Warm-up phase is over for thread #" << worker->id << "."
             << std::endl;
-  std::cout << "Main benchmark duration is started for thread #" << worker->id
+  std::cerr << "Main benchmark duration is started for thread #" << worker->id
             << "." << std::endl;
   assert(worker->stats.req_started == 0);
   assert(worker->stats.req_done == 0);
@@ -461,7 +461,7 @@ int Client::connect() {
     record_connect_start_time();
   } else if (worker->current_phase == Phase::INITIAL_IDLE) {
     worker->current_phase = Phase::WARM_UP;
-    std::cout << "Warm-up started for thread #" << worker->id << "."
+    std::cerr << "Warm-up started for thread #" << worker->id << "."
               << std::endl;
     ev_timer_start(worker->loop, &worker->warmup_watcher);
   }
@@ -651,7 +651,7 @@ void Client::process_request_failure() {
   if (req_inflight == 0) {
     terminate_session();
   }
-  std::cout << "Process Request Failure:" << worker->stats.req_failed
+  std::cerr << "Process Request Failure:" << worker->stats.req_failed
             << std::endl;
 }
 
@@ -667,15 +667,15 @@ void print_server_tmp_key(SSL *ssl) {
 
   auto key_del = defer(EVP_PKEY_free, key);
 
-  std::cout << "Server Temp Key: ";
+  std::cerr << "Server Temp Key: ";
 
   auto pkey_id = EVP_PKEY_id(key);
   switch (pkey_id) {
   case EVP_PKEY_RSA:
-    std::cout << "RSA " << EVP_PKEY_bits(key) << " bits" << std::endl;
+    std::cerr << "RSA " << EVP_PKEY_bits(key) << " bits" << std::endl;
     break;
   case EVP_PKEY_DH:
-    std::cout << "DH " << EVP_PKEY_bits(key) << " bits" << std::endl;
+    std::cerr << "DH " << EVP_PKEY_bits(key) << " bits" << std::endl;
     break;
   case EVP_PKEY_EC: {
     auto ec = EVP_PKEY_get1_EC_KEY(key);
@@ -686,12 +686,12 @@ void print_server_tmp_key(SSL *ssl) {
       cname = OBJ_nid2sn(nid);
     }
 
-    std::cout << "ECDH " << cname << " " << EVP_PKEY_bits(key) << " bits"
+    std::cerr << "ECDH " << cname << " " << EVP_PKEY_bits(key) << " bits"
               << std::endl;
     break;
   }
   default:
-    std::cout << OBJ_nid2sn(pkey_id) << " " << EVP_PKEY_bits(key) << " bits"
+    std::cerr << OBJ_nid2sn(pkey_id) << " " << EVP_PKEY_bits(key) << " bits"
               << std::endl;
     break;
   }
@@ -703,7 +703,7 @@ void Client::report_tls_info() {
   if (worker->id == 0 && !worker->tls_info_report_done) {
     worker->tls_info_report_done = true;
     auto cipher = SSL_get_current_cipher(ssl);
-    std::cout << "TLS Protocol: " << tls::get_tls_protocol(ssl) << "\n"
+    std::cerr << "TLS Protocol: " << tls::get_tls_protocol(ssl) << "\n"
               << "Cipher: " << SSL_CIPHER_get_name(cipher) << std::endl;
     print_server_tmp_key(ssl);
   }
@@ -712,7 +712,7 @@ void Client::report_tls_info() {
 void Client::report_app_info() {
   if (worker->id == 0 && !worker->app_info_report_done) {
     worker->app_info_report_done = true;
-    std::cout << "Application protocol: " << selected_proto << std::endl;
+    std::cerr << "Application protocol: " << selected_proto << std::endl;
   }
 }
 
@@ -892,12 +892,12 @@ int Client::connection_made() {
       // negotiation result.
       selected_proto = proto.str();
     } else {
-      std::cout << "No protocol negotiated. Fallback behaviour may be activated"
+      std::cerr << "No protocol negotiated. Fallback behaviour may be activated"
                 << std::endl;
 
       for (const auto &proto : config.npn_list) {
         if (util::streq(NGHTTP2_H1_1_ALPN, StringRef{proto})) {
-          std::cout
+          std::cerr
               << "Server does not support NPN/ALPN. Falling back to HTTP/1.1."
               << std::endl;
           session = make_unique<Http1Session>(this);
@@ -912,11 +912,11 @@ int Client::connection_made() {
     }
 
     if (!session) {
-      std::cout
+      std::cerr
           << "No supported protocol was negotiated. Supported protocols were:"
           << std::endl;
       for (const auto &proto : config.npn_list) {
-        std::cout << proto.substr(1) << std::endl;
+        std::cerr << proto.substr(1) << std::endl;
       }
       disconnect();
       return -1;
@@ -1397,7 +1397,7 @@ void Worker::report_progress() {
     return;
   }
 
-  std::cout << "progress: " << stats.req_done * 100 / stats.req_todo << "% done"
+  std::cerr << "progress: " << stats.req_done * 100 / stats.req_todo << "% done"
             << std::endl;
 }
 
@@ -1406,7 +1406,7 @@ void Worker::report_rate_progress() {
     return;
   }
 
-  std::cout << "progress: " << nconns_made * 100 / nclients
+  std::cerr << "progress: " << nconns_made * 100 / nclients
             << "% of clients started" << std::endl;
 }
 
@@ -1463,12 +1463,6 @@ SDStat compute_time_stat(const std::vector<double> &samples,
 } // namespace
 
 namespace {
-void print_percentile(std::vector<double> request_times, int percentile) {
-  int idx = (request_times.size() * percentile) / 100;
-  std::cout << percentile << " percentile: " << request_times[idx] * 1000
-            << " ms" << std::endl;
-}
-
 SDStats
 process_time_stats(const std::vector<std::unique_ptr<Worker>> &workers) {
   auto request_times_sampling = false;
@@ -1537,23 +1531,15 @@ process_time_stats(const std::vector<std::unique_ptr<Worker>> &workers) {
     }
   }
 
-  std::sort(request_times.begin(), request_times.end());
-
-  if (request_times.size() > 100) {
-    print_percentile(request_times, 90);
-    print_percentile(request_times, 95);
-    print_percentile(request_times, 99);
-  }
-
   // std::vector<double>::iterator it;
   // for (it = request_times.begin(); it != request_times.end(); it++) {
-  //   std::cout << *it << "\n";
+  //   std::cerr << *it << "\n";
   // }
 
   return {compute_time_stat(request_times, request_times_sampling),
           compute_time_stat(connect_times, client_times_sampling),
           compute_time_stat(ttfb_times, client_times_sampling),
-          compute_time_stat(rps_values, client_times_sampling)};
+          compute_time_stat(rps_values, client_times_sampling), request_times};
 }
 } // namespace
 
@@ -1755,13 +1741,13 @@ std::unique_ptr<Worker> create_worker(uint32_t id, SSL_CTX *ssl_ctx,
   }
 
   if (config.is_timing_based_mode()) {
-    std::cout << "spawning thread #" << id << ": " << nclients
+    std::cerr << "spawning thread #" << id << ": " << nclients
               << " total client(s). Timing-based test with "
               << config.warm_up_time << "s of warm-up time and "
               << config.duration << "s of main duration for measurements."
               << std::endl;
   } else {
-    std::cout << "spawning thread #" << id << ": " << nclients
+    std::cerr << "spawning thread #" << id << ": " << nclients
               << " total client(s). " << rate_report.str() << nreqs
               << " total requests" << std::endl;
   }
@@ -2012,6 +1998,12 @@ Options:
 }
 } // namespace
 
+void print_percentile(std::vector<double> request_times, int percentile) {
+  int idx = (request_times.size() * percentile) / 100;
+  std::cerr << percentile << "percentile=" << request_times[idx] * 1000
+            << std::endl;
+}
+
 int main(int argc, char **argv) {
   tls::libssl_init();
 
@@ -2221,7 +2213,7 @@ int main(int argc, char **argv) {
       config.verbose = true;
       break;
     case 'h':
-      print_help(std::cout);
+      print_help(std::cerr);
       exit(EXIT_SUCCESS);
     case '?':
       util::show_candidates(argv[optind - 1], long_options);
@@ -2230,7 +2222,7 @@ int main(int argc, char **argv) {
       switch (flag) {
       case 1:
         // version option
-        print_version(std::cout);
+        print_version(std::cerr);
         exit(EXIT_SUCCESS);
       case 2:
         // ciphers option
@@ -2617,7 +2609,7 @@ int main(int argc, char **argv) {
 
   resolve_host();
 
-  std::cout << "starting benchmark..." << std::endl;
+  std::cerr << "starting benchmark..." << std::endl;
 
   std::vector<std::unique_ptr<Worker>> workers;
   workers.reserve(config.nthreads);
@@ -2772,7 +2764,7 @@ int main(int argc, char **argv) {
         1. - static_cast<double>(stats.bytes_head) / stats.bytes_head_decomp;
   }
 
-  std::cout << std::fixed << std::setprecision(2) << R"(
+  std::cerr << std::fixed << std::setprecision(2) << R"(
 finished in )"
             << util::format_duration(duration) << ", " << rps << " req/s, "
             << util::utos_funit(bps) << R"(B/s
@@ -2813,6 +2805,12 @@ time for request: )" << std::setw(10)
             << std::setw(10) << ts.rps.max << "  " << std::setw(10)
             << ts.rps.mean << "  " << std::setw(10) << ts.rps.sd << std::setw(9)
             << util::dtos(ts.rps.within_sd) << "%" << std::endl;
+
+  auto request_times = ts.request_times;
+  
+  print_percentile(request_times, 90);
+  print_percentile(request_times, 95);
+  print_percentile(request_times, 99);
 
   SSL_CTX_free(ssl_ctx);
 
