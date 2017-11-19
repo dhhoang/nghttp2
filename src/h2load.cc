@@ -1999,7 +1999,7 @@ Options:
 } // namespace
 
 void print_percentile(std::vector<double> request_times, int percentile) {
-  int idx = ((request_times.size() * percentile) / 100) - 1;
+  int idx = ((request_times.size() * percentile) / 1000) - 1;
   std::cout << percentile << "percentile=" << request_times[idx] * 1000
             << std::endl;
 }
@@ -2811,9 +2811,9 @@ time for request: )" << std::setw(10)
 
   // write these to stdout
   std::cout << "rps=" << rps << std::endl;
-  print_percentile(request_times, 95);
-  print_percentile(request_times, 98);
-  print_percentile(request_times, 99);
+  print_percentile(request_times, 980);
+  print_percentile(request_times, 990);
+  print_percentile(request_times, 999);
 
   SSL_CTX_free(ssl_ctx);
 
