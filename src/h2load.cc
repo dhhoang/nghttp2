@@ -1998,8 +1998,8 @@ Options:
 }
 } // namespace
 
-void print_percentile(std::vector<double> request_times, double percentile) {
-  int idx = ((request_times.size() * percentile * 10) / 1000) - 1;
+void print_percentile(std::vector<double> request_times, int percentile) {
+  int idx = ((request_times.size() * percentile) / 100) - 1;
   std::cout << percentile << "percentile=" << request_times[idx] * 1000
             << std::endl;
 }
