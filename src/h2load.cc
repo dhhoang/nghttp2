@@ -2810,7 +2810,7 @@ time for request: )" << std::setw(10)
   std::sort(request_times.begin(), request_times.end());
   std::vector<double>::iterator it;
   for (it = request_times.begin(); it != request_times.end(); it++) {
-    std::cout << *it << std::endl;
+    std::cerr << *it << std::endl;
   }
 
   // write these to stdout
