@@ -2000,7 +2000,7 @@ Options:
 
 void print_percentile(std::vector<double> request_times, int percentile) {
   int idx = (request_times.size() * percentile) / 100;
-  std::cerr << percentile << "percentile=" << request_times[idx] * 1000
+  std::cout << percentile << "percentile=" << request_times[idx] * 1000
             << std::endl;
 }
 
@@ -2807,7 +2807,7 @@ time for request: )" << std::setw(10)
             << util::dtos(ts.rps.within_sd) << "%" << std::endl;
 
   auto request_times = ts.request_times;
-  
+
   print_percentile(request_times, 90);
   print_percentile(request_times, 95);
   print_percentile(request_times, 99);
