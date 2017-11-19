@@ -2809,7 +2809,7 @@ time for request: )" << std::setw(10)
   auto request_times = ts.request_times;
   std::sort(request_times.begin(), request_times.end());
   // write these to stdout
-  std::cout << "rps=" << util::format_duration(duration) << std::endl;
+  std::cout << "rps=" << rps << std::endl;
   print_percentile(request_times, 95);
   print_percentile(request_times, 98);
   print_percentile(request_times, 99);
