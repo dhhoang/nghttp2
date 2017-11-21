@@ -1998,11 +1998,11 @@ Options:
 }
 } // namespace
 
-void print_percentile(std::vector<double> request_times, int percentile) {
-  int idx = ((request_times.size() * percentile) / 100) - 1;
-  std::cout << percentile << "percentile=" << request_times[idx] * 1000
-            << std::endl;
-}
+// void print_percentile(std::vector<double> request_times, int percentile) {
+//   int idx = ((request_times.size() * percentile) / 100) - 1;
+//   std::cout << percentile << "percentile=" << request_times[idx] * 1000
+//             << std::endl;
+// }
 
 int main(int argc, char **argv) {
   tls::libssl_init();
@@ -2684,6 +2684,7 @@ int main(int argc, char **argv) {
   }
 
   auto start = std::chrono::steady_clock::now();
+  auto system_start = std::chrono::system_clock::now();
 
   for (auto &fut : futures) {
     fut.get();
@@ -2699,11 +2700,13 @@ int main(int argc, char **argv) {
       create_worker(0, ssl_ctx, nreqs, nclients, rate, MAX_SAMPLES));
 
   auto start = std::chrono::steady_clock::now();
+  auto system_start = std::chrono::system_clock::now();
 
   workers.back()->run();
 #endif // NOTHREADS
 
   auto end = std::chrono::steady_clock::now();
+  auto system_end = std::chrono::system_clock::now();
   auto duration =
       std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
@@ -2810,13 +2813,26 @@ time for request: )" << std::setw(10)
   std::sort(request_times.begin(), request_times.end());
 
   // write these to stdout
-  std::cout << "rps=" << rps << std::endl;
-  print_percentile(request_times, 95);
-  print_percentile(request_times, 98);
-  print_percentile(request_times, 99);
+  // time_start-time_end
+
+  std::cout
+      << std::chrono::time_point_cast<std::chrono::milliseconds>(system_start)
+             .time_since_epoch()
+             .count()
+      << "-"
+      << std::chrono::time_point_cast<std::chrono::milliseconds>(system_end)
+             .time_since_epoch()
+             .count()
+      << std::endl;
+
+  std::cout << "no_req=" << request_times.size() << std::endl;
+  std::cout << "bytes_sent=" << stats.bytes_total << std::endl;
+
+  for (auto it = request_times.begin(); it != request_times.end(); it++) {
+    std::cout << *it << std::endl;
+  }
 
   SSL_CTX_free(ssl_ctx);
-
   return 0;
 }
 
